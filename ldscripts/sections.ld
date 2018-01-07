@@ -140,14 +140,17 @@ SECTIONS
      *
      * This is just to check that there is enough RAM left for the Main
      * stack. It should generate a link error if it's full.
-	 */
+
     ._check_stack : ALIGN(4)
     {
         . = . + __carzos_main_stack_size;
     } >RAM
+    */
 
+    /*
     /DISCARD/ :
     {
         * ( .shstrtab* )
     }
+    */
 }
