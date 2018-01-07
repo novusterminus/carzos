@@ -82,12 +82,6 @@ abort(void)
 
 // ----------------------------------------------------------------------------
 
-#if !defined(OS_INCLUDE_STARTUP_GUARD_CHECKS)
-#define OS_INCLUDE_STARTUP_GUARD_CHECKS (1)
-#endif
-
-// ----------------------------------------------------------------------------
-
 // Begin address for the initialisation values of the .data section.
 // defined in linker script
 extern unsigned int _data_begin_rom;
@@ -181,28 +175,6 @@ __initialize_bss(unsigned int* region_begin, unsigned int* region_end)
     *p++ = 0;
 }
 
-#if defined(DEBUG) && (OS_INCLUDE_STARTUP_GUARD_CHECKS)
-
-// These definitions are used to check if the routines used to
-// clear the BSS and to copy the initialised DATA perform correctly.
-
-#define BSS_GUARD_BAD_VALUE (0xCADEBABA)
-
-static uint32_t volatile __attribute__ ((section(".bss_begin"))) __bss_begin_guard;
-static uint32_t volatile __attribute__ ((section(".bss_end"))) __bss_end_guard;
-
-#define DATA_GUARD_BAD_VALUE (0xCADEBABA)
-#define DATA_BEGIN_GUARD_VALUE (0x12345678)
-#define DATA_END_GUARD_VALUE (0x98765432)
-
-static uint32_t volatile __attribute__ ((section(".data_begin")))
-__data_begin_guard = DATA_BEGIN_GUARD_VALUE;
-
-static uint32_t volatile __attribute__ ((section(".data_end")))
-__data_end_guard = DATA_END_GUARD_VALUE;
-
-#endif // defined(DEBUG) && (OS_INCLUDE_STARTUP_GUARD_CHECKS)
-
 // This is the place where Cortex-M core will go immediately after reset,
 // via a call or jump from the Reset_Handler.
 //
@@ -227,38 +199,11 @@ _start(void)
   // Use Old Style DATA and BSS section initialisation,
   // that will manage a single BSS sections.
 
-#if defined(DEBUG) && (OS_INCLUDE_STARTUP_GUARD_CHECKS)
-  __data_begin_guard = DATA_GUARD_BAD_VALUE;
-  __data_end_guard = DATA_GUARD_BAD_VALUE;
-#endif
-
   // Copy the DATA segment from Flash to RAM (inlined).
   __initialize_data(&_data_begin_rom, &_data_begin_ram, &_data_end_ram);
 
-#if defined(DEBUG) && (OS_INCLUDE_STARTUP_GUARD_CHECKS)
-  if ((__data_begin_guard != DATA_BEGIN_GUARD_VALUE)
-      || (__data_end_guard != DATA_END_GUARD_VALUE))
-    {
-      for (;;)
-	;
-    }
-#endif
-
-#if defined(DEBUG) && (OS_INCLUDE_STARTUP_GUARD_CHECKS)
-  __bss_begin_guard = BSS_GUARD_BAD_VALUE;
-  __bss_end_guard = BSS_GUARD_BAD_VALUE;
-#endif
-
   // Zero fill the BSS section (inlined).
   __initialize_bss(&_bss_begin_ram, &_bss_end_ram);
-
-#if defined(DEBUG) && (OS_INCLUDE_STARTUP_GUARD_CHECKS)
-  if ((__bss_begin_guard != 0) || (__bss_end_guard != 0))
-    {
-      for (;;)
-	;
-    }
-#endif
 
   // Hook to continue the initialisations. Usually compute and store the
   // clock frequency in the global CMSIS variable, cleared above.
