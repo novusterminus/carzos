@@ -75,9 +75,6 @@ void __attribute__((weak)) __hardware_init_early(void)
 
 #endif // (__VFP_FP__) && !(__SOFTFP__)
 
-#if defined(OS_DEBUG_SEMIHOSTING_FAULTS)
-  SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk;
-#endif
 }
 
 // This is the second hardware initialisation routine, it can be

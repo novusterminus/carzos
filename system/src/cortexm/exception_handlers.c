@@ -158,10 +158,6 @@ isSemihosting (ExceptionStackFrame* frame, uint16_t opCode)
       uint32_t* blk = (uint32_t*) r1;
 #endif
 
-#if defined(OS_DEBUG_SEMIHOSTING_FAULTS)
-      // trace_printf ("sh r0=%d\n", r0);
-#endif
-
       switch (r0)
         {
 
@@ -473,19 +469,6 @@ UsageFault_Handler_C (ExceptionStackFrame* frame __attribute__((unused)),
   uint32_t mmfar = SCB->MMFAR; // MemManage Fault Address
   uint32_t bfar = SCB->BFAR; // Bus Fault Address
   uint32_t cfsr = SCB->CFSR; // Configurable Fault Status Registers
-#endif
-
-#if defined(OS_DEBUG_SEMIHOSTING_FAULTS)
-
-  if ((cfsr & (1UL << 16)) != 0) // UNDEFINSTR
-    {
-      // For testing purposes, instead of BKPT use 'setend be'.
-      if (isSemihosting (frame, AngelSWITestFaultOpCode))
-        {
-          return;
-        }
-    }
-
 #endif
 
 #if defined(TRACE)

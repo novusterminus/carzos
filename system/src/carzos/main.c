@@ -14,12 +14,6 @@
 // Then demonstrates how to blink a led with 1 Hz, using a
 // continuous loop and SysTick delays.
 //
-// Trace support is enabled by adding the TRACE macro definition.
-// By default the trace messages are forwarded to the DEBUG output,
-// but can be rerouted to any device or completely suppressed, by
-// changing the definitions required in system/src/diag/trace_impl.c
-// (currently OS_USE_TRACE_ITM, OS_USE_TRACE_SEMIHOSTING_DEBUG/_STDOUT).
-//
 
 // ----- Timing definitions -------------------------------------------------
 
