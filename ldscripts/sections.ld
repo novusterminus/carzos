@@ -1,8 +1,6 @@
 /*
  * Default linker script for Cortex-M (it includes specifics for STM32F[34]xx).
  * 
- * To make use of the multi-region initialisations, define
- * OS_INCLUDE_STARTUP_INIT_MULTIPLE_RAM_SECTIONS for the _startup.c file.
  */
 
 __carzos_stack_end = ORIGIN(RAM) + LENGTH(RAM);
@@ -63,49 +61,6 @@ SECTIONS
         *(.after_vectors .after_vectors.*)	/* Startup code and ISR */
 
     } >FLASH
-
-    .inits : ALIGN(4)
-    {
-        /* 
-         * Memory regions initialisation arrays.
-         *
-         * Thee are two kinds of arrays for each RAM region, one for 
-         * data and one for bss. Each is iterrated at startup and the   
-         * region initialisation is performed.
-         * 
-         * The data array includes:
-         * - from (LOADADDR())
-         * - region_begin (ADDR())
-         * - region_end (ADDR()+SIZEOF())
-         *
-         * The bss array includes:
-         * - region_begin (ADDR())
-         * - region_end (ADDR()+SIZEOF())
-         *
-         * WARNING: It is mandatory that the regions are word aligned, 
-         * since the initialisation code works only on words.
-         */
-         
-        __data_regions_array_start = .;
-        
-        LONG(LOADADDR(.data));
-        LONG(ADDR(.data));
-        LONG(ADDR(.data)+SIZEOF(.data));
-        
-        __data_regions_array_end = .;
-        
-        __bss_regions_array_start = .;
-        
-        LONG(ADDR(.bss));
-        LONG(ADDR(.bss)+SIZEOF(.bss));
-        
-        __bss_regions_array_end = .;
-
-        /* End of memory regions initialisation arrays. */
-
-		. = ALIGN(4);
-
-    } >FLASH 
 
     /*
      * The program code is stored in the .text section, 
@@ -169,7 +124,7 @@ SECTIONS
     /* The primary uninitialised data section. */
     .bss (NOLOAD) : ALIGN(4)
     {
-        _sbss = .;              /* STM specific definition */
+        _bss_begin_ram = .;
         *(.bss_begin .bss_begin.*)
 
         *(.bss .bss.*)
@@ -177,7 +132,7 @@ SECTIONS
         
         *(.bss_end .bss_end.*)
 	    . = ALIGN(4);
-        _ebss = . ;             /* STM specific definition */
+        _bss_end_ram = . ;
     } >RAM
 
     /*
