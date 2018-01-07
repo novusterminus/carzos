@@ -22,7 +22,15 @@
 // ----------------------------------------------------------------------------
 
 #include <stdint.h>
+#include <_ansi.h>
+#include <_syslist.h>
+#include <errno.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/times.h>
+#include <limits.h>
+#include <signal.h>
 
 // ----------------------------------------------------------------------------
 
@@ -92,16 +100,6 @@ extern unsigned int _data_end_ram;
 extern unsigned int _bss_begin_ram;
 // End address for the .bss section; defined in linker script
 extern unsigned int _bss_end_ram;
-
-#include <_ansi.h>
-#include <_syslist.h>
-#include <errno.h>
-//#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/time.h>
-#include <sys/times.h>
-#include <limits.h>
-#include <signal.h>
 
 void __initialize_args(int* p_argc, char*** p_argv);
 
