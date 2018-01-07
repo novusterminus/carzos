@@ -134,7 +134,7 @@ SECTIONS
      * This address is used by the startup code to 
      * initialise the .data section.
      */
-    _sidata = LOADADDR(.data);
+    _data_begin_rom = LOADADDR(.data);
 
     /*
      * The initialised data section.
@@ -148,7 +148,7 @@ SECTIONS
     {
     	FILL(0xFF)
         /* This is used by the startup code to initialise the .data section */
-        _sdata = . ;        	/* STM specific definition */
+        _data_begin_ram = . ;
         *(.data_begin .data_begin.*)
 
         *(.data .data.*)
@@ -157,7 +157,7 @@ SECTIONS
         . = ALIGN(4);
 
         /* This is used by the startup code to initialise the .data section */
-        _edata = . ;        	/* STM specific definition */
+        _data_end_ram = . ;
 
     } >RAM AT>FLASH
     

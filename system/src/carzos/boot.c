@@ -86,11 +86,11 @@ abort(void)
 #if !defined(OS_INCLUDE_STARTUP_INIT_MULTIPLE_RAM_SECTIONS)
 // Begin address for the initialisation values of the .data section.
 // defined in linker script
-extern unsigned int _sidata;
+extern unsigned int _data_begin_rom;
 // Begin address for the .data section; defined in linker script
-extern unsigned int _sdata;
+extern unsigned int _data_begin_ram;
 // End address for the .data section; defined in linker script
-extern unsigned int _edata;
+extern unsigned int _data_end_ram;
 
 // Begin address for the .bss section; defined in linker script
 extern unsigned int __bss_start__;
@@ -252,7 +252,7 @@ _start(void)
 
 #if !defined(OS_INCLUDE_STARTUP_INIT_MULTIPLE_RAM_SECTIONS)
   // Copy the DATA segment from Flash to RAM (inlined).
-  __initialize_data(&_sidata, &_sdata, &_edata);
+  __initialize_data(&_data_begin_rom, &_data_begin_ram, &_data_end_ram);
 #else
 
   // Copy the data sections from flash to SRAM.
