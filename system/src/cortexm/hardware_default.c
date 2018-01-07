@@ -61,11 +61,7 @@ void __attribute__((weak)) __hardware_init_early(void)
   // so it needs to be recomputed after the RAM initialisations
   // are completed.
 
-#if defined(OS_INCLUDE_STARTUP_INIT_FP) || (defined (__VFP_FP__) && !defined (__SOFTFP__))
-
-  // Normally FP init is done by SystemInit(). In case this is not done
-  // there, it is possible to force its inclusion by defining
-  // OS_INCLUDE_STARTUP_INIT_FP.
+#if (defined (__VFP_FP__) && !defined (__SOFTFP__))
 
   // Enable the Cortex-M4 FPU only when -mfloat-abi=hard.
   // Code taken from Section 7.1, Cortex-M4 TRM (DDI0439C)
