@@ -23,4 +23,7 @@ typedef  int64_t s64;
 typedef uint64_t u64;
 
 
+#define ALIGN(x,a)              __ALIGN_MASK(x,(typeof(x))(a)-1)
+#define __ALIGN_MASK(x,mask)    (((x)+(mask))&~(mask))
+
 #endif /* KTYPE_H_ */

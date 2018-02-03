@@ -14,6 +14,7 @@ typedef struct kmem_block
 
 typedef struct kmem_heap
 {
+	// List of allocated blocks
 	kmem_Block *head;
 	// Other data; stats etc...
 } kmem_Heap;
@@ -51,24 +52,29 @@ void *kmem_alloc(u32 size)
 		return NULL;
 	}
 
+	// Add header size
 	size += sizeof(kmem_Block);
+	// Align to architecture
+	size = ALIGN(size, 4);
 
-	size = (size + 3U) & ~(u32) 3U;
-
+	// Search for a first-fit
 	kmem_Block *currentBlock = cos_heap.head;
 	while (1)
 	{
-		u32 holeSize = (u32) currentBlock->next - (u32) currentBlock;
-		holeSize -= currentBlock->length;
+		// Find the size of the hole between current allocated block and next allocated block
+		u32 holeSize = (u32) currentBlock->next - (u32) currentBlock - currentBlock->length;
 
 		if (holeSize >= size)
 		{
+			// Found a fit (firs-fit)
 			break;
 		}
+
+		// Could not found a fit resume with next block
 		currentBlock = currentBlock->next;
 		if (currentBlock->next == NULL)
 		{
-			/* Failed, we are at the end of the list */
+			// Last block reached, no more memory
 			return NULL;
 		}
 	}
@@ -76,18 +82,20 @@ void *kmem_alloc(u32 size)
 	void *p;
 	if (currentBlock->length == 0U)
 	{
-		/* No block is allocated, set the Length of the first element */
+		// First block
 		currentBlock->length = size;
-		p = (kmem_Block *) (((u32) currentBlock) + sizeof(kmem_Block));
+		p = (void *) (((u32) currentBlock) + sizeof(kmem_Block));
 	}
 	else
 	{
-		/* Insert new list element into the memory list */
+		// Insert the newly allocated block
 		kmem_Block *newBlock = (kmem_Block *) ((u32) currentBlock + currentBlock->length);
 		newBlock->next = currentBlock->next;
 		newBlock->length = size;
 		currentBlock->next = newBlock;
-		p = (kmem_Block *) (((u32) newBlock) + sizeof(kmem_Block));
+
+		// Convert block to memory
+		p = (void *) (((u32) newBlock) + sizeof(kmem_Block));
 	}
 
 	return (p);
@@ -100,9 +108,10 @@ u32 kmem_free(void *p)
 		return ERR_GENERIC;
 	}
 
+	// Convert memory to block
 	kmem_Block *blockReturned = (kmem_Block *) ((u32) p - sizeof(kmem_Block));
 
-	/* Set list header */
+	// Try to find block returned and its previous block in the allocated blocks list
 	kmem_Block *previousBlock = NULL;
 	kmem_Block *currentBlock = cos_heap.head;
 	while (currentBlock != blockReturned)
@@ -111,19 +120,19 @@ u32 kmem_free(void *p)
 		currentBlock = currentBlock->next;
 		if (currentBlock == NULL)
 		{
-			/* Valid Memory block not found */
+			// Returned block not found
 			return ERR_GENERIC;
 		}
 	}
 
 	if (previousBlock == NULL)
 	{
-		/* First block to be released, only set length to 0 */
+		// Returned block is the first block in the list
 		currentBlock->length = 0U;
 	}
 	else
 	{
-		/* Discard block from chain list */
+		// Remove the returned block from the list
 		previousBlock->next = currentBlock->next;
 	}
 
